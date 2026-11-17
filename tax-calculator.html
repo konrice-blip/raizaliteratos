@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Tax Calculator</title>
+    <link rel="stylesheet" href="/global.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E📊%3C/text%3E%3C/svg%3E">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+      .container {
+          margin: 0 auto;
+      }
+      .back-link {
+          display: inline-block;
+          text-decoration: none;
+          color: black;
+          background-color: #e6e6e6;
+          padding: 8px 16px;
+          border-radius: 8px;
+          border: 2px solid rgb(129, 129, 129);
+          font-weight: bold;
+          margin-bottom: 20px;
+          transition: background-color 0.2s ease;
+      }
+      .back-link:hover {
+          background-color: #dcdcdc;
+      }
+      .table-title {
+          font-weight: bold;
+          margin: 15px;
+          font-size: 1.2rem;
+          text-transform: uppercase;
+      }
+      .input-container, .table-container {
+        background-color: #e6e6e6;
+        width: 50%;
+        padding: 25px;
+        margin: 0 auto;
+        border-radius: 10px;
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+        border: 2px solid rgb(129, 129, 129);
+        margin-top: 20px;
+      }
+      .table-container {
+        width: 80%;
+      }
+      .table-container table th,
+      .table-container table td {
+        padding: 10px;
+        border: 1px solid rgb(129, 129, 129);
+      }
+      .table-container table th {
+        background-color: #333;
+        color: white;
+        text-align: center;
+      }
+      .table-container table tbody tr td {
+        color: rgb(78, 76, 76);
+      }
+      .input-container .input {
+        padding: 6px;
+        width: 200px;
+        border-radius: 8px;
+        border: 1px solid rgb(129, 129, 129);
+      }
+      .input-container .button {
+        padding: 6px 14px;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 8px;
+        border: 1px solid rgb(129, 129, 129);
+        background-color: white;
+      }
+      .answer {
+        font-size: 25px;
+        font-weight: bold;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/index.html" class="back-link">← Back to Home</a>
+      <h2 style="text-align: center;">Income Tax Calculator</h2>
+
+      <div class="table-container">
+        <table>
+            <caption class="table-title">Income Tax Table Guide</caption>
+            <thead>
+                <tr>
+                    <th>Taxable Income per Year</th>
+                    <th>Income Tax Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>₱ 250,000 and Below</td>
+                    <td>0%</td>
+                </tr>
+                <tr>
+                    <td>Above ₱ 250,000 to ₱ 400,000</td>
+                    <td>20% of the excess over ₱ 250,000</td>
+                </tr>
+                <tr>
+                    <td>Above ₱ 400,000 to ₱ 800,000</td>
+                    <td>₱ 30,000 + 25% of the excess over ₱ 400,000</td>
+                </tr>
+                <tr>
+                    <td>Above ₱ 800,000 to ₱ 2,000,000</td>
+                    <td>₱ 130,000 + 30% of the excess over ₱ 800,000</td>
+                </tr>
+                <tr>
+                    <td>Above ₱ 2,000,000 to ₱ 8,000,000</td>
+                    <td>₱ 490,000 + 32% of the excess over ₱ 2,000,000</td>
+                </tr>
+                <tr>
+                    <td>Above ₱ 8,000,000</td>
+                    <td>₱ 2,410,000 + 35% of the excess over ₱ 8,000,000</td>
+                </tr>
+            </tbody>
+        </table>
+      </div>
+        
+      <div class="input-container">
+          <h3>Compute Tax</h3>
+          <p>Enter Income:</p>
+          <input type="number" id="input" class="input"/>
+          <button id="button" class="button">Compute</button>
+          <p id="paragraph"></p>
+          <p id="answer" class="answer"></p>
+      </div>
+    </div>
+    
+    <script>
+      const button = document.getElementById("button");
+      const answer = document.getElementById("answer");
+
+      function taxCalculator(min, per, max, value) {
+        return min + (value - max) * (per * 0.01);
+      }
+
+      function computeTax(value) {
+        let result = 0;
+        if (value <= 250000) {
+            result = taxCalculator(0, 0, 0, value);
+        } else if (value <= 400000) {
+            result = taxCalculator(0, 20, 250000, value);
+        } else if (value <= 800000) {
+            result = taxCalculator(30000, 25, 400000, value);
+        } else if (value <= 2000000) {
+            result = taxCalculator(130000, 30, 800000, value);
+        } else if (value <= 8000000) {
+            result = taxCalculator(490000, 32, 2000000, value);
+        } else {
+            result = taxCalculator(2410000, 35, 8000000, value);
+        }
+        answer.textContent = `₱ ${result.toFixed(2)}`;
+        return result;
+      }
+
+      button.addEventListener("click", ()=> {
+        const inputElement = document.getElementById("input");
+        const value = Number(inputElement.value);
+        const par = document.getElementById("paragraph");
+        par.textContent = "... Thus, the amount of Net Taxable Income you have is: ";
+        computeTax(value);
+      })
+    </script>
+  </body>
+</html>

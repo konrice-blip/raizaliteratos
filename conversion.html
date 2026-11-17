@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Conversion</title>
+    <link rel="stylesheet" href="/global.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🔄%3C/text%3E%3C/svg%3E">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        margin: 0 auto;
+        padding-top: 20px;
+      }
+      .back-link {
+        display: inline-block;
+        text-decoration: none;
+        color: black;
+        background-color: #e6e6e6;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 2px solid rgb(129, 129, 129);
+        font-weight: bold;
+        margin-bottom: 20px;
+        transition: background-color 0.2s ease;
+      }
+      .back-link:hover {
+        background-color: #dcdcdc;
+      }
+      .converter {
+        background-color: #e6e6e6;
+        width: 50%;
+        padding: 30px 25px;
+        margin: 20px auto 30px auto;
+        border-radius: 10px;
+        border: 2px solid rgb(129, 129, 129);
+        text-align: center;
+      }
+      .converter h2 {
+        margin-top: 0;
+        text-transform: uppercase;
+        font-size: 1.4rem;
+      }
+      .converter p {
+        color: rgb(78, 76, 76);
+        margin-bottom: 20px;
+      }
+      .control-group {
+        margin-bottom: 18px;
+      }
+      select, input, button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgb(129, 129, 129);
+        font-size: 1rem;
+      }
+      select {
+        width: 70%;
+        background-color: white;
+        cursor: pointer;
+      }
+      input {
+        width: 45%;
+      }
+      button {
+        font-weight: bold;
+        cursor: pointer;
+        background-color: white;
+        transition: background-color 0.2s ease;
+      }
+      button:hover {
+        background-color: #dcdcdc;
+      }
+      .result-box {
+        margin-top: 25px;
+        padding-top: 15px;
+        border-top: 1px solid rgb(180, 180, 180);
+      }
+      .answer, .unit {
+        font-size: 25px;
+        font-weight: bold;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/index.html" class="back-link">← Back to Home</a>
+
+      <div id="converter" class="converter">
+        <h2>Converter</h2>
+        <p>Input a number and select the conversion direction!</p>
+
+        <!-- Dropdown to choose direction -->
+        <div class="control-group">
+          <select id="direction">
+            <option value="none">-- Select Conversion --</option>
+            <option value="cToF">Celsius to Fahrenheit</option>
+            <option value="fToC">Fahrenheit to Celsius</option>
+            <option value="mToFt">Meters to Feet</option>
+            <option value="ftToM">Feet to Meters</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <input type="number" id="input" placeholder="Enter value..." />
+          <button id="button">Convert</button>
+        </div>
+
+        <div class="result-box">
+          <p style="margin: 0 0 5px 0;">Answer:</p>
+          <span id="answer" class="answer">0</span> <span id="unit" class="unit"></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const inputElement = document.getElementById("input");
+      const button = document.getElementById("button");
+      const answer = document.getElementById("answer");
+      const direction = document.getElementById("direction");
+      const unit = document.getElementById("unit");
+
+      function calculateMeasurement(inputVal, dir) {
+        const value = Number(inputVal);
+        if (inputVal === "" || isNaN(value)) {
+          unit.textContent = "";
+          return "Please enter a valid number";
+        }
+        if (dir === "none") {
+          unit.textContent = "";
+          return "Please select a conversion";
+        } else if (dir === "cToF") {
+          unit.textContent = "°Fahrenheit";
+          return value * 1.8 + 32;
+        } else if (dir === "fToC") {
+          unit.textContent = "°Celsius";
+          return (value - 32) / 1.8;
+        } else if (dir === "mToFt") {
+          unit.textContent = "Feet";
+          return value * 3.28084;
+        } else if (dir === "ftToM") {
+          unit.textContent = "Meters";
+          return value * 0.3048;
+        }
+      }
+
+      button.addEventListener("click", () => {
+        const result = calculateMeasurement(inputElement.value, direction.value);
+        answer.textContent = typeof result === "number" ? result.toFixed(2) : result;
+      });
+    </script>
+  </body>
+</html>

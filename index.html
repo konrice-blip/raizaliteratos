@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Personal Main Website</title>
+    <link rel="stylesheet" href="/global.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🏠%3C/text%3E%3C/svg%3E">    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        margin: 0 auto;
+        padding-top: 20px;
+        padding-bottom: 40px;
+      }
+      .header-box {
+        background-color: #e6e6e6;
+        width: 65%;
+        padding: 25px;
+        margin: 20px auto 40px auto;
+        border-radius: 10px;
+        border: 2px solid rgb(129, 129, 129);
+      }
+      .header-box h1 {
+        margin-top: 0;
+        text-transform: uppercase;
+        font-size: 1.5rem;
+      }
+      .header-box h3 {
+        margin: 8px 0;
+        color: rgb(78, 76, 76);
+        font-weight: normal;
+      }
+      .header-box h6 {
+        margin: 12px 0 0 0;
+        font-size: 0.9rem;
+        color: black;
+      }
+      /* Clickable assignment cards matching your box style */
+      .box-link {
+        display: block;
+        text-decoration: none;
+        color: black;
+        background-color: #e6e6e6;
+        width: 50%;
+        padding: 25px;
+        margin: 25px auto;
+        border-radius: 10px;
+        border: 2px solid rgb(129, 129, 129);
+        transition: width 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+      }
+      .box-link:hover {
+        width: 60%;
+        background-color: #dcdcdc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .box-link h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.15rem;
+        text-transform: uppercase;
+      }
+      .box-link p {
+        margin: 0;
+        color: rgb(78, 76, 76);
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Info Card -->
+      <div class="header-box">
+        <h1>HTML, CSS, and JavaScript Personal Project Website</h1>
+        <h3>Created by Raiza Jeniss S. Literatos</h3>
+        <h3>From CS1A, <br> MW (7:30 AM to 9:00 AM) <br> & F (9:30 AM to 11:30 AM)</h3>
+        <h6>Adviser: John Roy Geralde</h6>
+      </div>
+
+      <!-- Assignment Cards -->
+      <a href="/conversion.html" class="box-link">
+        <h3>Assignment #1 - Conversion</h3>
+        <p>Celsius to Fahrenheit, Fahrenheit to Celsius, Meters to Feet, Feet to Meters</p>
+      </a>
+
+      <a href="/tax-calculator.html" class="box-link">
+        <h3>Assignment #2 - Income Tax Calculator</h3>
+        <p>Compute annual income tax based on the progressive tax table</p>
+      </a>
+
+      <a href="/loops.html" class="box-link">
+        <h3>Assignment #3 - Loops</h3>
+        <p>Factorial (While Loop), Sum (Do While Loop) and Average (For Loop) of First N Natural Numbers</p>
+      </a>
+
+      <a href="/payroll.html" class="box-link">
+        <h3>Assignment #4 - Simple Payroll</h3>
+        <p>Manage employee daily rates, gross pay, deductions, and net pay</p>
+      </a>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
