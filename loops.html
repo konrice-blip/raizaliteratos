@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loops</title>
+  <link rel="stylesheet" href="/global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%232850e0'/><g fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' transform='translate(4 4) scale(.67)'><path d='m17 2 4 4-4 4'/><path d='M3 11v-1a4 4 0 0 1 4-4h14'/><path d='m7 22-4-4 4-4'/><path d='M21 13v1a4 4 0 0 1-4 4H3'/></g></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f2f4f8; --surface: #ffffff; --ink: #14213d; --muted: #566074; --line: #d5dbe6;
+      --accent: #2850e0; --accent-soft: #e4eaff; --header-bg: #14213d; --on-accent: #ffffff;
+      --radius: 14px;
+      --font-head: "Bricolage Grotesque", "Segoe UI", Arial, sans-serif;
+      --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1522; --surface: #182034; --ink: #eef1f8; --muted: #a2adc2; --line: #2c3752;
+        --accent: #8ba4ff; --accent-soft: #232f55; --header-bg: #0a0f1a; --on-accent: #0f1522;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh;
+      text-align: left; font-family: var(--font-body); line-height: 1.6;
+      color: var(--ink); background: var(--bg);
+    }
+    h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; margin: 0; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+    .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+    main { flex: 1; }
+
+    .progress {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40;
+      background: var(--accent); transform: scaleX(0); transform-origin: left; pointer-events: none;
+    }
+
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 20; background: var(--header-bg); color: #fff; transition: box-shadow .3s; }
+    .site-header.scrolled { box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; transition: padding .3s; }
+    .site-header.scrolled .nav { padding: 7px 0; }
+    .brand { font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; text-decoration: none; color: #fff; white-space: nowrap; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; }
+    .logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--on-accent); }
+    .logo svg { width: 18px; height: 18px; }
+    .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.8); text-decoration: none; font-size: .92rem; font-weight: 500;
+      padding: 8px 14px; border-radius: 999px; white-space: nowrap; transition: background-color .2s, color .2s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-links a[aria-current="page"] { background: rgba(255,255,255,.18); color: #fff; }
+
+    /* Intro */
+    .intro { padding: 56px 0 8px; text-align: center; }
+    .crumbs { font-size: .9rem; color: var(--muted); margin-bottom: 14px; }
+    .crumbs a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .crumbs a:hover { text-decoration: underline; }
+    .intro h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; }
+    .intro p { margin: 14px auto 0; max-width: 52ch; color: var(--muted); font-size: 1.05rem; }
+
+    /* Content */
+    .content { padding: 32px 0 72px; }
+    .stack { width: min(640px, 100%); margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 28px; box-shadow: 0 10px 30px rgba(20,33,61,.08);
+    }
+    .panel label { display: block; margin-bottom: 8px; font-weight: 600; font-size: .95rem; }
+    .row { display: flex; gap: 10px; }
+    input {
+      flex: 1; min-width: 0; padding: 12px 14px; font: inherit; color: var(--ink);
+      background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:hover { border-color: var(--accent); }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .btn {
+      padding: 12px 24px; font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 10px;
+      background: var(--accent); color: var(--on-accent);
+      transition: transform .15s, filter .2s, box-shadow .2s;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(40,80,224,.3); }
+    .btn:active { transform: scale(.97); }
+    .row .btn {
+      flex: 0 0 auto; min-height: 48px; margin: 0; line-height: 1.2; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center;
+      -webkit-appearance: none; appearance: none; touch-action: manipulation;
+    }
+    .row input { min-height: 48px; }
+    .hint { margin: 10px 0 0; font-size: .9rem; color: var(--muted); }
+    .hint.is-error { color: #c4264a; font-weight: 600; }
+    @media (prefers-color-scheme: dark) { .hint.is-error { color: #ff8aa5; } }
+    .shake { animation: shake .4s; }
+    @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+    /* Result cards */
+    .result {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px 24px; transition: border-color .2s, box-shadow .2s, transform .25s;
+    }
+    .result:hover { border-color: var(--accent); box-shadow: 0 12px 28px rgba(20,33,61,.12); transform: translateY(-2px); }
+    .result-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .result h3 { font-size: 1.1rem; }
+    .badge {
+      font-size: .8rem; font-weight: 600; padding: 3px 12px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+    }
+    .formula { margin: 0 0 12px; font-size: .9rem; color: var(--muted); }
+    .answer {
+      margin: 0; padding: 14px 16px; border-radius: 10px; background: var(--accent-soft);
+      font-family: var(--font-head); font-size: clamp(1.2rem, 4vw, 1.6rem); font-weight: 700;
+      word-break: break-all; overflow-wrap: anywhere;
+    }
+    .answer.pop { animation: pop .45s cubic-bezier(.2,.9,.3,1.3) backwards; }
+    @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(8px); } }
+
+    /* Entrance */
+    .rise { animation: rise .7s cubic-bezier(.2,.7,.2,1) backwards; }
+    .d1 { animation-delay: .05s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; } .d4 { animation-delay: .5s; } .d5 { animation-delay: .65s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(22px); } }
+
+    /* Footer */
+    .site-footer { background: var(--header-bg); color: #cfd6e6; padding: 40px 0 28px; }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; }
+    footer.site-footer h2 { font-size: 1rem; color: #fff; margin-bottom: 10px; }
+    footer.site-footer p, footer.site-footer li { color: #cfd6e6; margin: 0 0 6px; font-size: .92rem; }
+    footer.site-footer ul { margin: 0; padding: 0; list-style: none; }
+    footer.site-footer a { color: #cfd6e6; text-decoration: none; font-size: .92rem; }
+    footer.site-footer a:hover { color: #fff; text-decoration: underline; }
+    .footer-bottom {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2);
+      font-size: .86rem; color: #cfd6e6;
+    }
+
+    @media (max-width: 800px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .nav { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .nav-links { width: 100%; }
+      .intro { padding-top: 40px; }
+      .panel { padding: 22px; }
+      .row { flex-direction: column; }
+      .row input { flex: none; width: 100%; }
+      .row .btn { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="/index.html" class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>Raiza’s Website</a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="/index.html">Home</a>
+        <a href="/conversion.html">Conversion</a>
+        <a href="/tax-calculator.html">Tax Calculator</a>
+        <a href="/loops.html" aria-current="page">Loops</a>
+        <a href="/payroll.html">Payroll</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="wrap">
+        <p class="crumbs rise d1"><a href="/index.html">Home</a> / Assignment 3</p>
+        <h1 class="rise d2">Loops</h1>
+        <p class="rise d3">Enter a number N to get its factorial, sum, and average, each computed with a different loop.</p>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="wrap">
+        <div class="stack">
+          <div class="panel rise d3" id="panel">
+            <label for="input">Positive whole number (N)</label>
+            <div class="row">
+              <input type="number" id="input" min="1" step="1" placeholder="Enter N, for example 5" />
+              <button id="button" class="btn">Submit</button>
+            </div>
+            <p id="hint" class="hint" aria-live="polite">Tip: press Enter to submit.</p>
+          </div>
+
+          <div class="result rise d4">
+            <div class="result-top"><h3>Factorial</h3><span class="badge">while loop</span></div>
+            <p class="formula">N! = 1 × 2 × 3 × … × N</p>
+            <p id="factAns" class="answer">0</p>
+          </div>
+
+          <div class="result rise d5">
+            <div class="result-top"><h3>Sum of the first N numbers</h3><span class="badge">do-while loop</span></div>
+            <p class="formula">1 + 2 + 3 + … + N</p>
+            <p id="sumAns" class="answer">0</p>
+          </div>
+
+          <div class="result rise d5">
+            <div class="result-top"><h3>Average of the first N numbers</h3><span class="badge">for loop</span></div>
+            <p class="formula">Sum ÷ N</p>
+            <p id="averAns" class="answer">0</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <h2>Raiza’s Website</h2>
+          <p>A class project built with plain HTML, CSS, and JavaScript.</p>
+        </div>
+        <div>
+          <h2>Assignments</h2>
+          <ul>
+            <li><a href="/conversion.html">Conversion</a></li>
+            <li><a href="/tax-calculator.html">Tax Calculator</a></li>
+            <li><a href="/loops.html">Loops</a></li>
+            <li><a href="/payroll.html">Payroll</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Class</h2>
+          <p>CS1A</p>
+          <p>Adviser: John Roy Geralde</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="year"></span> Raiza Jeniss S. Literatos</span>
+        <a href="/index.html">Back to home</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const input = document.getElementById("input");
+    const button = document.getElementById("button");
+    const hint = document.getElementById("hint");
+    const factorialAnsw = document.getElementById("factAns");
+    const sumAnsw = document.getElementById("sumAns");
+    const averageAnsw = document.getElementById("averAns");
+    const MAX_N = 10000; // keeps the factorial loop fast
+
+    // Update an answer box and replay its pop animation
+    function setAnswer(el, text, delay) {
+      el.textContent = text;
+      el.classList.remove("pop");
+      el.style.animationDelay = delay + "ms";
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+
+    function factorial(value) {
+      if (value <= 0) { setAnswer(factorialAnsw, 0, 0); return 0; }
+      let i = 1;
+      let result = 1n;
+      while (i <= value) {
+        result *= BigInt(i);
+        i++;
+      }
+      setAnswer(factorialAnsw, result.toString(), 160);
+      return result;
+    }
+
+    function sum(value) {
+      if (value <= 0) { setAnswer(sumAnsw, 0, 0); return 0; }
+      let i = 1;
+      let result = 0;
+      do {
+        result += i;
+        i++;
+      } while (i <= value);
+      setAnswer(sumAnsw, result.toLocaleString(), 80);
+      return result;
+    }
+
+    function average(value) {
+      if (value <= 0) { setAnswer(averageAnsw, 0, 0); return 0; }
+      let result = 0;
+      for (let i = 1; i <= value; i++) {
+        result += i;
+      }
+      const avg = result / value;
+      setAnswer(averageAnsw, avg.toLocaleString(), 0);
+      return avg;
+    }
+
+    function showHint(message, isError) {
+      hint.textContent = message;
+      hint.classList.toggle("is-error", isError);
+    }
+
+    function submit() {
+      const raw = input.value;
+      const value = Number(raw);
+
+      if (raw === "" || !Number.isInteger(value) || value < 1) {
+        showHint("Please enter a positive whole number, such as 5.", true);
+        input.classList.remove("shake");
+        void input.offsetWidth;
+        input.classList.add("shake");
+        return;
+      }
+      if (value > MAX_N) {
+        showHint("Please enter a number up to " + MAX_N.toLocaleString() + ".", true);
+        return;
+      }
+
+      showHint("Showing results for N = " + value.toLocaleString() + ".", false);
+      average(value);
+      sum(value);
+      factorial(value);
+    }
+
+    button.addEventListener("click", submit);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+    // Scroll effects: progress bar and header shadow
+    const header = document.querySelector(".site-header");
+    const progress = document.getElementById("progress");
+    function onScroll() {
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = "scaleX(" + (max > 0 ? y / max : 0) + ")";
+      header.classList.toggle("scrolled", y > 20);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  </script>
+</body>
+</html>

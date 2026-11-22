@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Raiza’s Project Website</title>
+  <link rel="stylesheet" href="/global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%232850e0'/><g fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' transform='translate(4 4) scale(.67)'><polyline points='16 18 22 12 16 6'/><polyline points='8 6 2 12 8 18'/></g></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f2f4f8;
+      --surface: #ffffff;
+      --ink: #14213d;
+      --muted: #566074;
+      --line: #d5dbe6;
+      --accent: #2850e0;
+      --accent-soft: #e4eaff;
+      --header-bg: #14213d;
+      --header-ink: #ffffff;
+      --radius: 14px;
+      --font-head: "Bricolage Grotesque", "Segoe UI", Arial, sans-serif;
+      --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1522;
+        --surface: #182034;
+        --ink: #eef1f8;
+        --muted: #a2adc2;
+        --line: #2c3752;
+        --accent: #8ba4ff;
+        --accent-soft: #232f55;
+        --header-bg: #0a0f1a;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      text-align: left;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; margin: 0; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+    .skip-link {
+      position: absolute; left: 12px; top: -60px;
+      background: var(--accent); color: #fff; padding: 8px 14px; border-radius: 8px; z-index: 100;
+    }
+    .skip-link:focus { top: 12px; }
+
+    .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+
+    /* Header */
+    .site-header {
+      position: sticky; top: 0; z-index: 20;
+      background: var(--header-bg); color: var(--header-ink);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; }
+    .brand {
+      font-family: var(--font-head); font-weight: 700; font-size: 1.15rem;
+      text-decoration: none; color: var(--header-ink); white-space: nowrap;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; }
+    .logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--on-accent); }
+    .logo svg { width: 18px; height: 18px; }
+    .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.8); text-decoration: none; font-size: .92rem; font-weight: 500;
+      padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+      transition: background-color .2s, color .2s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-links a[aria-current="page"] { background: rgba(255,255,255,.18); color: #fff; }
+
+    /* Hero */
+    .hero {
+      position: relative; overflow: hidden; text-align: center;
+      padding: 88px 0 72px;
+    }
+    .hero::before, .hero::after {
+      content: ""; position: absolute; z-index: 0; border-radius: 50%;
+      filter: blur(70px); opacity: .55; pointer-events: none;
+    }
+    .hero::before { width: 340px; height: 340px; background: var(--accent-soft); top: -120px; left: 8%; animation: drift 14s ease-in-out infinite alternate; }
+    .hero::after  { width: 300px; height: 300px; background: var(--accent-soft); bottom: -140px; right: 8%; animation: drift 17s ease-in-out infinite alternate-reverse; }
+    .hero-grid { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+    .hero-grid > div { width: 100%; }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em;
+      max-width: 20ch; margin: 0 auto;
+    }
+    .hero-lead { margin: 20px auto 28px; max-width: 56ch; color: var(--muted); font-size: 1.1rem; }
+    .btn {
+      display: inline-block; text-decoration: none; font-weight: 600;
+      background: var(--accent); color: #fff; padding: 13px 28px; border-radius: 10px;
+      transition: transform .15s, filter .2s, box-shadow .2s;
+    }
+    @media (prefers-color-scheme: dark) { .btn { color: #0f1522; } }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(40,80,224,.3); }
+    .meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 36px 0 0; padding: 0; list-style: none; }
+    .meta li {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+      padding: 7px 16px; font-size: .9rem; color: var(--muted);
+    }
+    .meta strong { color: var(--ink); font-weight: 600; }
+
+    /* Entrance animation: one staggered sequence on page load */
+    .rise { animation: rise .7s cubic-bezier(.2,.7,.2,1) backwards; }
+    .d1 { animation-delay: .05s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; } .d4 { animation-delay: .5s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(22px); } }
+    @keyframes drift { to { transform: translate(40px, 30px) scale(1.12); } }
+
+    /* Cards reveal as they scroll into view */
+    .reveal { --tx: 0px; opacity: 0; transform: translate(var(--tx), 28px); transition: opacity .6s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+    .grid .card:nth-child(odd) { --tx: -36px; }
+    .grid .card:nth-child(even) { --tx: 36px; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* Projects */
+    .projects { padding: 24px 0 72px; }
+    .section-head { margin-bottom: 24px; }
+    .section-head h2 { font-size: 1.7rem; }
+    .section-head p { margin: 6px 0 0; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .card {
+      display: flex; flex-direction: column; gap: 14px; text-decoration: none;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 24px; transition: opacity .6s ease, transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .2s, border-color .2s;
+    }
+    .card.in:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 12px 28px rgba(20,33,61,.12); }
+    .card-top { display: flex; align-items: center; justify-content: space-between; }
+    .icon {
+      color: var(--accent);
+      width: 48px; height: 48px; display: grid; place-items: center; font-size: 1.5rem;
+      background: var(--accent-soft); border-radius: 12px;
+    }
+    .icon svg { width: 26px; height: 26px; }
+    .card:hover .icon { transform: rotate(-8deg) scale(1.08); }
+    .icon { transition: transform .25s; }
+    .badge { font-size: .82rem; font-weight: 600; color: var(--muted); }
+    .card h3 { font-size: 1.25rem; }
+    .card p { margin: 0; color: var(--muted); font-size: .96rem; }
+    .open { margin-top: auto; font-weight: 600; color: var(--accent); }
+    .open span { display: inline-block; transition: transform .2s; }
+    .card:hover .open span { transform: translateX(4px); }
+
+
+    /* Scroll effects */
+    .progress {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40;
+      background: var(--accent); transform: scaleX(0); transform-origin: left; pointer-events: none;
+    }
+    .site-header { transition: box-shadow .3s; }
+    .nav { transition: padding .3s; }
+    .site-header.scrolled { box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+    .site-header.scrolled .nav { padding: 7px 0; }
+    .hero::before { translate: 0 calc(var(--sy, 0) * -0.25px); }
+    .hero::after  { translate: 0 calc(var(--sy, 0) * 0.2px); }
+    .hero-grid { will-change: transform, opacity; }
+
+    .scroll-cue {
+      display: inline-block; margin-top: 40px; width: 40px; height: 40px; line-height: 38px;
+      border: 2px solid var(--line); border-radius: 50%; text-decoration: none; color: var(--muted);
+      font-size: 1.1rem; animation: bounce 1.8s ease-in-out infinite;
+      transition: border-color .2s, color .2s;
+    }
+    .scroll-cue:hover { border-color: var(--accent); color: var(--accent); }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
+
+    .section-head h2 { display: inline-block; }
+    .section-head h2::after {
+      content: ""; display: block; height: 4px; width: 56px; margin-top: 10px; border-radius: 4px;
+      background: var(--accent); transform: scaleX(0); transform-origin: left;
+      transition: transform .8s cubic-bezier(.2,.7,.2,1) .3s;
+    }
+    .section-head.in h2::after { transform: none; }
+
+    .to-top {
+      position: fixed; right: 20px; bottom: 20px; z-index: 30; width: 46px; height: 46px;
+      border: 0; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: 700;
+      background: var(--accent); color: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      opacity: 0; transform: translateY(16px) scale(.9); pointer-events: none;
+      transition: opacity .3s, transform .3s, filter .2s;
+    }
+    @media (prefers-color-scheme: dark) { .to-top { color: #0f1522; } }
+    .to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+    .to-top.show:hover { transform: translateY(-3px); filter: brightness(1.1); }
+
+    main { flex: 1; }
+
+    /* Footer */
+    .site-footer { background: var(--header-bg); color: #ffffff; padding: 40px 0 28px; }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; }
+    footer.site-footer h2 { font-size: 1rem; color: #ffffff; margin-bottom: 10px; }
+    footer.site-footer p,
+    footer.site-footer li,
+    footer.site-footer span { color: #cfd6e6; margin: 0 0 6px; font-size: .92rem; }
+    footer.site-footer ul { margin: 0; padding: 0; list-style: none; }
+    footer.site-footer a { color: #cfd6e6; text-decoration: none; font-size: .92rem; }
+    footer.site-footer a:hover { color: #ffffff; text-decoration: underline; }
+    .footer-bottom {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.25); font-size: .86rem;
+    }
+
+    @media (max-width: 800px) {
+      .hero { padding: 56px 0 44px; }
+      .grid, .footer-grid { grid-template-columns: 1fr; }
+      .nav { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .nav-links { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+      .rise, .reveal { opacity: 1 !important; transform: none !important; }
+      .section-head h2::after { transform: none !important; }
+      .hero::before, .hero::after { translate: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <a href="#projects" class="skip-link">Skip to assignments</a>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="/index.html" class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>Raiza’s Website</a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="/index.html" aria-current="page">Home</a>
+        <a href="/conversion.html">Conversion</a>
+        <a href="/tax-calculator.html">Tax Calculator</a>
+        <a href="/loops.html">Loops</a>
+        <a href="/payroll.html">Payroll</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <h1 class="rise d1">Four small tools built with HTML, CSS, and JavaScript</h1>
+          <p class="hero-lead rise d2">
+            A personal project site by Raiza Jeniss S. Literatos. Each assignment is a working
+            page you can open and use.
+          </p>
+          <a href="#projects" class="btn rise d3">View assignments</a>
+          <ul class="meta rise d4">
+            <li><strong>Class:</strong> CS1A</li>
+            <li><strong>MW:</strong> 7:30–9:00 AM</li>
+            <li><strong>F:</strong> 9:30–11:30 AM</li>
+            <li><strong>Adviser:</strong> John Roy Geralde</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects" id="projects">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <h2>Assignments</h2>
+          <p>Select a card to open that page.</p>
+        </div>
+        <div class="grid">
+          <a href="/conversion.html" class="card reveal">
+            <div class="card-top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></div><span class="badge">Assignment 1</span></div>
+            <h3>Conversion</h3>
+            <p>Celsius to Fahrenheit, Fahrenheit to Celsius, meters to feet, and feet to meters.</p>
+            <span class="open">Open converter <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a href="/tax-calculator.html" class="card reveal">
+            <div class="card-top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/></svg></div><span class="badge">Assignment 2</span></div>
+            <h3>Income Tax Calculator</h3>
+            <p>Find your tax bracket, tax due, effective rate, and income after tax.</p>
+            <span class="open">Open calculator <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a href="/loops.html" class="card reveal">
+            <div class="card-top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><span class="badge">Assignment 3</span></div>
+            <h3>Loops</h3>
+            <p>Factorial (while loop), sum (do-while loop), and average (for loop) of the first N natural numbers.</p>
+            <span class="open">Open loops <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a href="/payroll.html" class="card reveal">
+            <div class="card-top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div><span class="badge">Assignment 4</span></div>
+            <h3>Simple Payroll</h3>
+            <p>Add employees and track daily rates, gross pay, deductions, and net pay.</p>
+            <span class="open">Open payroll <span aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="reveal">
+          <h2>Raiza’s Website</h2>
+          <p>A class project built with plain HTML, CSS, and JavaScript.</p>
+        </div>
+        <div class="reveal">
+          <h2>Assignments</h2>
+          <ul>
+            <li><a href="/conversion.html">Conversion</a></li>
+            <li><a href="/tax-calculator.html">Tax Calculator</a></li>
+            <li><a href="/loops.html">Loops</a></li>
+            <li><a href="/payroll.html">Payroll</a></li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h2>Class</h2>
+          <p>CS1A</p>
+          <p>Adviser: John Roy Geralde</p>
+        </div>
+      </div>
+      <div class="footer-bottom reveal">
+        <span>&copy; <span id="year"></span> Raiza Jeniss S. Literatos</span>
+        <a href="#top" onclick="window.scrollTo({top:0});return false;">Back to top</a>
+      </div>
+    </div>
+  </footer>
+  <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    // Reveal elements as they enter the viewport (staggered by position among siblings)
+    const items = document.querySelectorAll(".reveal");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const el = e.target;
+          const idx = [...el.parentElement.children].indexOf(el);
+          el.style.transitionDelay = (idx % 3) * 120 + "ms";
+          el.classList.add("in");
+          setTimeout(() => (el.style.transitionDelay = ""), 1200); // keep hover snappy afterwards
+          io.unobserve(el);
+        });
+      }, { threshold: 0.15 });
+      items.forEach((el) => io.observe(el));
+    } else {
+      items.forEach((el) => el.classList.add("in"));
+    }
+
+    // Scroll effects: progress bar, header shadow, hero parallax, back-to-top
+    const header = document.querySelector(".site-header");
+    const progress = document.getElementById("progress");
+    const hero = document.querySelector(".hero");
+    const heroGrid = document.querySelector(".hero-grid");
+    const toTop = document.getElementById("toTop");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let ticking = false;
+
+    function onScroll() {
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = "scaleX(" + (max > 0 ? y / max : 0) + ")";
+      header.classList.toggle("scrolled", y > 20);
+      toTop.classList.toggle("show", y > 400);
+      if (!reduceMotion && y < 1000) {
+        hero.style.setProperty("--sy", y);
+        heroGrid.style.transform = "translateY(" + y * 0.12 + "px)";
+        heroGrid.style.opacity = Math.max(0.15, 1 - y / 550);
+      }
+      ticking = false;
+    }
+    window.addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+    }, { passive: true });
+    toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    onScroll();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

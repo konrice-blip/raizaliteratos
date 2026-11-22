@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Employee Payroll List</title>
+  <link rel="stylesheet" href="/global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%232850e0'/><g fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' transform='translate(4 4) scale(.67)'><rect width='20' height='12' x='2' y='6' rx='2'/><circle cx='12' cy='12' r='2'/><path d='M6 12h.01M18 12h.01'/></g></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f2f4f8; --surface: #ffffff; --ink: #14213d; --muted: #566074; --line: #d5dbe6;
+      --accent: #2850e0; --accent-soft: #e4eaff; --header-bg: #14213d; --on-accent: #ffffff;
+      --danger: #c4264a; --radius: 14px;
+      --font-head: "Bricolage Grotesque", "Segoe UI", Arial, sans-serif;
+      --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1522; --surface: #182034; --ink: #eef1f8; --muted: #a2adc2; --line: #2c3752;
+        --accent: #8ba4ff; --accent-soft: #232f55; --header-bg: #0a0f1a; --on-accent: #0f1522;
+        --danger: #ff8aa5;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh;
+      text-align: left; font-family: var(--font-body); line-height: 1.6;
+      color: var(--ink); background: var(--bg);
+    }
+    h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; margin: 0; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+    .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+    main { flex: 1; }
+
+    .progress {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40;
+      background: var(--accent); transform: scaleX(0); transform-origin: left; pointer-events: none;
+    }
+
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 20; background: var(--header-bg); color: #fff; transition: box-shadow .3s; }
+    .site-header.scrolled { box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; transition: padding .3s; }
+    .site-header.scrolled .nav { padding: 7px 0; }
+    .brand { font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; text-decoration: none; color: #fff; white-space: nowrap; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; }
+    .logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--on-accent); }
+    .logo svg { width: 18px; height: 18px; }
+    .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.8); text-decoration: none; font-size: .92rem; font-weight: 500;
+      padding: 8px 14px; border-radius: 999px; white-space: nowrap; transition: background-color .2s, color .2s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-links a[aria-current="page"] { background: rgba(255,255,255,.18); color: #fff; }
+
+    /* Intro */
+    .intro { padding: 56px 0 8px; text-align: center; }
+    .crumbs { font-size: .9rem; color: var(--muted); margin-bottom: 14px; }
+    .crumbs a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .crumbs a:hover { text-decoration: underline; }
+    .intro h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; }
+    .intro p { margin: 14px auto 0; max-width: 52ch; color: var(--muted); font-size: 1.05rem; }
+
+    /* Layout */
+    .content { padding: 32px 0 72px; }
+    .top-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 28px; box-shadow: 0 10px 30px rgba(20,33,61,.08);
+    }
+    .panel h2 { font-size: 1.25rem; margin-bottom: 4px; }
+    .panel .sub { margin: 0 0 20px; color: var(--muted); font-size: .94rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field { display: flex; flex-direction: column; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { margin-bottom: 6px; font-weight: 600; font-size: .92rem; }
+    input, select {
+      width: 100%; padding: 11px 14px; font: inherit; color: var(--ink);
+      background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    select { cursor: pointer; }
+    input:hover, select:hover { border-color: var(--accent); }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+    .btn {
+      padding: 12px 22px; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid transparent;
+      border-radius: 10px; background: var(--accent); color: var(--on-accent);
+      transition: transform .15s, filter .2s, box-shadow .2s, background-color .2s;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(40,80,224,.3); }
+    .btn:active { transform: scale(.97); }
+    .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+    .btn.ghost:hover { border-color: var(--accent); background: var(--accent-soft); box-shadow: none; filter: none; }
+    .btn.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+    .btn.danger:hover { background: var(--danger); color: #fff; box-shadow: none; filter: none; }
+    /* Buttons: equal-width, fill their card, and stack when space runs out */
+    .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 18px; }
+    .actions .btn {
+      width: 100%; min-height: 46px; margin: 0; padding: 10px 16px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: inherit; font-size: 1rem; line-height: 1.2; text-align: center; white-space: normal;
+      -webkit-appearance: none; appearance: none; touch-action: manipulation;
+    }
+    @media (max-width: 420px) { .actions { grid-template-columns: 1fr; } }
+
+    .hint { margin: 14px 0 0; min-height: 1.5em; font-size: .92rem; color: var(--muted); }
+    .hint.is-error { color: var(--danger); font-weight: 600; }
+    .hint.is-ok { color: var(--accent); font-weight: 600; }
+    .shake { animation: shake .4s; }
+    @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+    /* Table section */
+    .list-section { margin-top: 20px; }
+    .toolbar { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+    .toolbar .field { min-width: 240px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat { background: var(--accent-soft); border-radius: 12px; padding: 14px 16px; }
+    .stat span { display: block; font-size: .86rem; color: var(--muted); }
+    .stat strong { font-family: var(--font-head); font-size: 1.3rem; overflow-wrap: anywhere; }
+    .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { background: var(--accent-soft); font-size: .88rem; text-align: center; }
+    td.left { text-align: left; white-space: normal; }
+    td.center { text-align: center; }
+    tbody tr { transition: background-color .15s; }
+    tbody tr:hover { background: var(--accent-soft); }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr.row-in { animation: rowIn .5s cubic-bezier(.2,.7,.2,1); }
+    @keyframes rowIn { from { opacity: 0; transform: translateX(-16px); background: var(--accent-soft); } }
+    .empty { text-align: center; padding: 36px 16px; color: var(--muted); }
+    .empty strong { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: 4px; }
+
+    /* Entrance */
+    .rise { animation: rise .7s cubic-bezier(.2,.7,.2,1) backwards; }
+    .d1 { animation-delay: .05s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; } .d4 { animation-delay: .5s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(22px); } }
+
+    /* Footer */
+    .site-footer { background: var(--header-bg); color: #cfd6e6; padding: 40px 0 28px; }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; }
+    footer.site-footer h2 { font-size: 1rem; color: #fff; margin-bottom: 10px; }
+    footer.site-footer p, footer.site-footer li { color: #cfd6e6; margin: 0 0 6px; font-size: .92rem; }
+    footer.site-footer ul { margin: 0; padding: 0; list-style: none; }
+    footer.site-footer a { color: #cfd6e6; text-decoration: none; font-size: .92rem; }
+    footer.site-footer a:hover { color: #fff; text-decoration: underline; }
+    .footer-bottom {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2);
+      font-size: .86rem; color: #cfd6e6;
+    }
+
+    @media (max-width: 800px) {
+      .top-grid, .footer-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .nav { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .nav-links { width: 100%; }
+      .intro { padding-top: 40px; }
+      .panel { padding: 22px; }
+      .toolbar .field { min-width: 100%; }
+    }
+
+    /* Phones: each table row becomes a card, so nothing scrolls sideways */
+    @media (max-width: 700px) {
+      .table-scroll { overflow: visible; border: 0; }
+      table { min-width: 0; }
+      thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      table, tbody, tr, td { display: block; width: 100%; }
+      tbody tr {
+        border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px;
+        padding: 4px 0; background: var(--bg);
+      }
+      td, td.left, td.center {
+        display: flex; justify-content: space-between; align-items: center; gap: 16px;
+        text-align: right; white-space: normal; padding: 9px 14px;
+        border-bottom: 1px dashed var(--line);
+      }
+      td:last-child { border-bottom: 0; }
+      td::before { content: attr(data-label); font-weight: 600; color: var(--muted); text-align: left; }
+      td.left { overflow-wrap: anywhere; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="/index.html" class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>Raiza’s Website</a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="/index.html">Home</a>
+        <a href="/conversion.html">Conversion</a>
+        <a href="/tax-calculator.html">Tax Calculator</a>
+        <a href="/loops.html">Loops</a>
+        <a href="/payroll.html" aria-current="page">Payroll</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="wrap">
+        <p class="crumbs rise d1"><a href="/index.html">Home</a> / Assignment 4</p>
+        <h1 class="rise d2">Employee Payroll System</h1>
+        <p class="rise d3">Add employees, track gross and net pay, and view the list in any currency.</p>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="wrap">
+        <div class="top-grid rise d3">
+          <!-- Add employee -->
+          <div class="panel" id="addPanel">
+            <h2>Add employee</h2>
+            <p class="sub">Amounts are entered in Philippine pesos (₱).</p>
+            <div class="form-grid">
+              <div class="field full">
+                <label for="empName">Employee name</label>
+                <input type="text" id="empName" placeholder="e.g., Juan Dela Cruz" />
+              </div>
+              <div class="field">
+                <label for="daysWorked">Days worked</label>
+                <input type="number" id="daysWorked" min="0" step="0.5" placeholder="0" />
+              </div>
+              <div class="field">
+                <label for="dailyRate">Daily rate (₱ PHP)</label>
+                <input type="number" id="dailyRate" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="field full">
+                <label for="deduction">Deduction amount (₱ PHP)</label>
+                <input type="number" id="deduction" min="0" step="0.01" placeholder="0.00" />
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn" onclick="addEmployee()">Add to payroll</button>
+            </div>
+            <p id="addMsg" class="hint" aria-live="polite"></p>
+          </div>
+
+          <!-- Manage -->
+          <div class="panel">
+            <h2>Manage payroll</h2>
+            <p class="sub">Remove a line by entering its number from the table.</p>
+            <div class="field">
+              <label for="lineNo">Line number to delete</label>
+              <input type="number" id="lineNo" min="1" placeholder="Enter No." />
+            </div>
+            <div class="actions">
+              <button class="btn ghost" onclick="deleteEmployee()">Delete line</button>
+              <button class="btn danger" onclick="clearList()">Clear all</button>
+            </div>
+            <p id="manageMsg" class="hint" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="panel list-section rise d4">
+          <div class="toolbar">
+            <div>
+              <h2>Employee payroll list</h2>
+            </div>
+            <div class="field">
+              <label for="currency">Display currency</label>
+              <select id="currency"></select>
+            </div>
+          </div>
+          <div id="stats" class="stats"></div>
+          <div id="tableContainer"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <h2>Raiza’s Website</h2>
+          <p>A class project built with plain HTML, CSS, and JavaScript.</p>
+        </div>
+        <div>
+          <h2>Assignments</h2>
+          <ul>
+            <li><a href="/conversion.html">Conversion</a></li>
+            <li><a href="/tax-calculator.html">Tax Calculator</a></li>
+            <li><a href="/loops.html">Loops</a></li>
+            <li><a href="/payroll.html">Payroll</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Class</h2>
+          <p>CS1A</p>
+          <p>Adviser: John Roy Geralde</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="year"></span> Raiza Jeniss S. Literatos</span>
+        <a href="/index.html">Back to home</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    let payrollList = [];
+    let justAdded = -1; // index of the newest row, so only it animates in
+
+    // phpPerUnit = how many pesos equal 1 unit of that currency. Update these as rates change.
+    const currencies = {
+      PHP: { symbol: "₱", phpPerUnit: 1,    decimals: 2, label: "Philippine Peso (₱)" },
+      USD: { symbol: "$", phpPerUnit: 58,   decimals: 2, label: "US Dollar ($)" },
+      EUR: { symbol: "€", phpPerUnit: 63,   decimals: 2, label: "Euro (€)" },
+      GBP: { symbol: "£", phpPerUnit: 73,   decimals: 2, label: "British Pound (£)" },
+      JPY: { symbol: "¥", phpPerUnit: 0.38, decimals: 0, label: "Japanese Yen (¥)" },
+    };
+
+    const currencySelect = document.getElementById("currency");
+    let currentCurrency = "PHP";
+
+    Object.entries(currencies).forEach(([code, c]) => {
+      currencySelect.add(new Option(`${code} - ${c.label}`, code));
+    });
+    currencySelect.addEventListener("change", () => {
+      currentCurrency = currencySelect.value;
+      justAdded = -1;
+      displayTable();
+    });
+
+    function formatMoney(amountPHP) {
+      const c = currencies[currentCurrency];
+      const value = amountPHP / c.phpPerUnit;
+      return `${c.symbol} ${value.toLocaleString("en-US", {
+        minimumFractionDigits: c.decimals,
+        maximumFractionDigits: c.decimals,
+      })}`;
+    }
+
+    // Prevents names from being read as HTML
+    function esc(text) {
+      return text.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    function setMsg(id, text, kind) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = "hint" + (kind ? " is-" + kind : "");
+    }
+
+    function shake(el) {
+      el.classList.remove("shake");
+      void el.offsetWidth;
+      el.classList.add("shake");
+    }
+
+    function addEmployee() {
+      const nameEl = document.getElementById("empName");
+      const daysEl = document.getElementById("daysWorked");
+      const rateEl = document.getElementById("dailyRate");
+      const dedEl = document.getElementById("deduction");
+
+      const name = nameEl.value.trim();
+      const days = parseFloat(daysEl.value);
+      const rate = parseFloat(rateEl.value);
+      const deduction = parseFloat(dedEl.value) || 0;
+
+      if (!name || isNaN(days) || isNaN(rate) || days < 0 || rate < 0 || deduction < 0) {
+        setMsg("addMsg", "Please enter a name, days worked, and daily rate (no negative numbers).", "error");
+        shake(document.getElementById("addPanel"));
+        return;
+      }
+
+      const grossPay = days * rate;
+      const netPay = grossPay - deduction;
+
+      if (netPay < 0) {
+        setMsg("addMsg", "The deduction is higher than the gross pay. Please lower it.", "error");
+        shake(dedEl);
+        return;
+      }
+
+      payrollList.push({ name, days, rate, grossPay, deduction, netPay });
+      justAdded = payrollList.length - 1;
+
+      nameEl.value = "";
+      daysEl.value = "";
+      rateEl.value = "";
+      dedEl.value = "";
+      nameEl.focus();
+
+      setMsg("addMsg", `Added ${name} to the payroll.`, "ok");
+      displayTable();
+    }
+
+    function removeAt(index) {
+      const emp = payrollList[index];
+      if (confirm(`Are you sure you want to delete Line No. ${index + 1} (${emp.name})?`)) {
+        payrollList.splice(index, 1);
+        justAdded = -1;
+        setMsg("manageMsg", `Deleted ${emp.name}.`, "ok");
+        displayTable();
+        return true;
+      }
+      return false;
+    }
+
+    function deleteEmployee() {
+      if (payrollList.length === 0) {
+        setMsg("manageMsg", "The payroll list is currently empty.", "error");
+        return;
+      }
+      const lineEl = document.getElementById("lineNo");
+      const lineNo = parseInt(lineEl.value, 10);
+
+      if (isNaN(lineNo) || lineNo < 1 || lineNo > payrollList.length) {
+        setMsg("manageMsg", `Enter a line number between 1 and ${payrollList.length}.`, "error");
+        shake(lineEl);
+        return;
+      }
+      if (removeAt(lineNo - 1)) lineEl.value = "";
+    }
+
+    function clearList() {
+      if (payrollList.length === 0) {
+        setMsg("manageMsg", "The payroll list is already empty.", "error");
+        return;
+      }
+      if (confirm("Are you sure you want to clear the entire payroll list?")) {
+        payrollList = [];
+        justAdded = -1;
+        setMsg("manageMsg", "Payroll list cleared.", "ok");
+        displayTable();
+      }
+    }
+
+    function displayTable() {
+      const container = document.getElementById("tableContainer");
+      const stats = document.getElementById("stats");
+
+      const totalGross = payrollList.reduce((sum, e) => sum + e.grossPay, 0);
+      const totalNet = payrollList.reduce((sum, e) => sum + e.netPay, 0);
+      stats.innerHTML = `
+        <div class="stat"><span>Employees</span><strong>${payrollList.length}</strong></div>
+        <div class="stat"><span>Total gross pay</span><strong>${formatMoney(totalGross)}</strong></div>
+        <div class="stat"><span>Total net pay</span><strong>${formatMoney(totalNet)}</strong></div>
+      `;
+
+      if (payrollList.length === 0) {
+        container.innerHTML = `<div class="empty"><strong>No employees yet</strong>Add your first employee using the form above.</div>`;
+        return;
+      }
+
+      let rows = "";
+      payrollList.forEach((emp, index) => {
+        rows += `
+          <tr class="${index === justAdded ? "row-in" : ""}">
+            <td class="center" data-label="No.">${index + 1}</td>
+            <td class="left" data-label="Employee">${esc(emp.name)}</td>
+            <td data-label="Days worked">${emp.days}</td>
+            <td data-label="Daily rate">${formatMoney(emp.rate)}</td>
+            <td data-label="Gross pay">${formatMoney(emp.grossPay)}</td>
+            <td data-label="Deduction">${formatMoney(emp.deduction)}</td>
+            <td data-label="Net pay"><strong>${formatMoney(emp.netPay)}</strong></td>
+          </tr>`;
+      });
+
+      container.innerHTML = `
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th><th>Employee name</th><th>Days worked</th><th>Daily rate</th>
+                <th>Gross pay</th><th>Deduction</th><th>Net pay</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    // Press Enter in the add form to submit
+    document.getElementById("addPanel").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addEmployee();
+    });
+
+    displayTable();
+
+    // Scroll effects: progress bar and header shadow
+    const header = document.querySelector(".site-header");
+    const progress = document.getElementById("progress");
+    function onScroll() {
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = "scaleX(" + (max > 0 ? y / max : 0) + ")";
+      header.classList.toggle("scrolled", y > 20);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  </script>
+</body>
+</html>

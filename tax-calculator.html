@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tax Calculator</title>
+  <link rel="stylesheet" href="/global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%232850e0'/><g fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' transform='translate(4 4) scale(.67)'><rect width='16' height='20' x='4' y='2' rx='2'/><line x1='8' x2='16' y1='6' y2='6'/><line x1='16' x2='16' y1='14' y2='18'/><path d='M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01'/></g></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f2f4f8; --surface: #ffffff; --ink: #14213d; --muted: #566074; --line: #d5dbe6;
+      --accent: #2850e0; --accent-soft: #e4eaff; --header-bg: #14213d; --on-accent: #ffffff;
+      --danger: #c4264a; --radius: 14px;
+      --font-head: "Bricolage Grotesque", "Segoe UI", Arial, sans-serif;
+      --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1522; --surface: #182034; --ink: #eef1f8; --muted: #a2adc2; --line: #2c3752;
+        --accent: #8ba4ff; --accent-soft: #232f55; --header-bg: #0a0f1a; --on-accent: #0f1522;
+        --danger: #ff8aa5;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh;
+      text-align: left; font-family: var(--font-body); line-height: 1.6;
+      color: var(--ink); background: var(--bg);
+    }
+    h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; margin: 0; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+    .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+    main { flex: 1; }
+
+    .progress {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40;
+      background: var(--accent); transform: scaleX(0); transform-origin: left; pointer-events: none;
+    }
+
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 20; background: var(--header-bg); color: #fff; transition: box-shadow .3s; }
+    .site-header.scrolled { box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; transition: padding .3s; }
+    .site-header.scrolled .nav { padding: 7px 0; }
+    .brand { font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; text-decoration: none; color: #fff; white-space: nowrap; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; }
+    .logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--on-accent); }
+    .logo svg { width: 18px; height: 18px; }
+    .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.8); text-decoration: none; font-size: .92rem; font-weight: 500;
+      padding: 8px 14px; border-radius: 999px; white-space: nowrap; transition: background-color .2s, color .2s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-links a[aria-current="page"] { background: rgba(255,255,255,.18); color: #fff; }
+
+    /* Intro */
+    .intro { padding: 56px 0 8px; text-align: center; }
+    .crumbs { font-size: .9rem; color: var(--muted); margin-bottom: 14px; }
+    .crumbs a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .crumbs a:hover { text-decoration: underline; }
+    .intro h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; }
+    .intro p { margin: 14px auto 0; max-width: 52ch; color: var(--muted); font-size: 1.05rem; }
+
+    /* Content */
+    .content { padding: 32px 0 72px; }
+    .stack { width: min(720px, 100%); margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 28px; box-shadow: 0 10px 30px rgba(20,33,61,.08);
+    }
+    .panel h2 { font-size: 1.25rem; margin-bottom: 4px; }
+    .panel .sub { margin: 0 0 20px; color: var(--muted); font-size: .94rem; }
+    .panel label { display: block; margin-bottom: 8px; font-weight: 600; font-size: .95rem; }
+    .row { display: flex; gap: 10px; }
+    input {
+      flex: 1; min-width: 0; min-height: 48px; padding: 12px 14px; font: inherit; color: var(--ink);
+      background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:hover { border-color: var(--accent); }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .btn {
+      padding: 12px 24px; font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 10px;
+      background: var(--accent); color: var(--on-accent);
+      transition: transform .15s, filter .2s, box-shadow .2s;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(40,80,224,.3); }
+    .btn:active { transform: scale(.97); }
+    .row .btn {
+      flex: 0 0 auto; min-height: 48px; margin: 0; line-height: 1.2; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center;
+      -webkit-appearance: none; appearance: none; touch-action: manipulation;
+    }
+    .hint { margin: 12px 0 0; min-height: 1.5em; font-size: .92rem; color: var(--muted); }
+    .hint.is-error { color: var(--danger); font-weight: 600; }
+    .shake { animation: shake .4s; }
+    @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+    /* Results */
+    .results { margin-top: 20px; display: grid; gap: 10px; }
+    .results[hidden] { display: none; }
+    .result-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 14px 16px; border-radius: 12px; background: var(--accent-soft);
+      animation: pop .45s cubic-bezier(.2,.9,.3,1.3) backwards;
+    }
+    .result-row:nth-child(2) { animation-delay: .08s; }
+    .result-row:nth-child(3) { animation-delay: .16s; }
+    .result-row:nth-child(4) { animation-delay: .24s; }
+    @keyframes pop { from { opacity: 0; transform: scale(.94) translateY(8px); } }
+    .result-label { color: var(--muted); font-size: .94rem; }
+    .result-value { font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; text-align: right; overflow-wrap: anywhere; }
+    .result-row.main .result-value { font-size: 1.4rem; color: var(--accent); }
+
+    /* Tax table */
+    .table-scroll { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { background: var(--accent-soft); font-size: .88rem; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background-color .25s, box-shadow .25s; }
+    tbody tr:hover { background: var(--accent-soft); }
+    tbody tr.active { background: var(--accent-soft); box-shadow: inset 4px 0 0 var(--accent); font-weight: 600; }
+
+    /* Entrance */
+    .rise { animation: rise .7s cubic-bezier(.2,.7,.2,1) backwards; }
+    .d1 { animation-delay: .05s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; } .d4 { animation-delay: .5s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(22px); } }
+
+    /* Footer */
+    .site-footer { background: var(--header-bg); color: #cfd6e6; padding: 40px 0 28px; }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; }
+    footer.site-footer h2 { font-size: 1rem; color: #fff; margin-bottom: 10px; }
+    footer.site-footer p, footer.site-footer li { color: #cfd6e6; margin: 0 0 6px; font-size: .92rem; }
+    footer.site-footer ul { margin: 0; padding: 0; list-style: none; }
+    footer.site-footer a { color: #cfd6e6; text-decoration: none; font-size: .92rem; }
+    footer.site-footer a:hover { color: #fff; text-decoration: underline; }
+    .footer-bottom {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2);
+      font-size: .86rem; color: #cfd6e6;
+    }
+
+    @media (max-width: 800px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .nav { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .nav-links { width: 100%; }
+      .intro { padding-top: 40px; }
+      .panel { padding: 22px; }
+      .row { flex-direction: column; }
+      .row input { flex: none; width: 100%; }
+      .row .btn { width: 100%; }
+      .result-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .result-value { text-align: left; }
+      th, td { padding: 10px; font-size: .92rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="/index.html" class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>Raiza’s Website</a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="/index.html">Home</a>
+        <a href="/conversion.html">Conversion</a>
+        <a href="/tax-calculator.html" aria-current="page">Tax Calculator</a>
+        <a href="/loops.html">Loops</a>
+        <a href="/payroll.html">Payroll</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="wrap">
+        <p class="crumbs rise d1"><a href="/index.html">Home</a> / Assignment 2</p>
+        <h1 class="rise d2">Income Tax Calculator</h1>
+        <p class="rise d3">Enter your annual taxable income to see your tax bracket, tax due, effective rate, and income after tax.</p>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="wrap">
+        <div class="stack">
+          <!-- Calculator -->
+          <div class="panel rise d3" id="calcPanel">
+            <h2>Compute tax</h2>
+            <p class="sub">Amounts are in Philippine pesos (₱).</p>
+            <label for="input">Annual taxable income</label>
+            <div class="row">
+              <input type="number" id="input" min="0" step="any" placeholder="e.g., 500000" />
+              <button id="button" class="btn">Compute</button>
+            </div>
+            <p id="error" class="hint is-error" aria-live="polite"></p>
+
+            <div id="results" class="results" hidden>
+              <div class="result-row">
+                <span class="result-label">Tax bracket</span>
+                <span id="bracket" class="result-value"></span>
+              </div>
+              <div class="result-row main">
+                <span class="result-label">Income tax due</span>
+                <span id="taxDue" class="result-value"></span>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Effective tax rate</span>
+                <span id="effectiveRate" class="result-value"></span>
+              </div>
+              <div class="result-row">
+                <span class="result-label">Income after tax</span>
+                <span id="afterTax" class="result-value"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tax table guide -->
+          <div class="panel rise d4">
+            <h2>Income tax table guide</h2>
+            <p class="sub">Your bracket is highlighted after you compute.</p>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Taxable income per year</th>
+                    <th>Income tax rate</th>
+                  </tr>
+                </thead>
+                <tbody id="taxTable">
+                  <tr><td>₱ 250,000 and below</td><td>0%</td></tr>
+                  <tr><td>Above ₱ 250,000 to ₱ 400,000</td><td>20% of the excess over ₱ 250,000</td></tr>
+                  <tr><td>Above ₱ 400,000 to ₱ 800,000</td><td>₱ 30,000 + 25% of the excess over ₱ 400,000</td></tr>
+                  <tr><td>Above ₱ 800,000 to ₱ 2,000,000</td><td>₱ 130,000 + 30% of the excess over ₱ 800,000</td></tr>
+                  <tr><td>Above ₱ 2,000,000 to ₱ 8,000,000</td><td>₱ 490,000 + 32% of the excess over ₱ 2,000,000</td></tr>
+                  <tr><td>Above ₱ 8,000,000</td><td>₱ 2,410,000 + 35% of the excess over ₱ 8,000,000</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <h2>Raiza’s Website</h2>
+          <p>A class project built with plain HTML, CSS, and JavaScript.</p>
+        </div>
+        <div>
+          <h2>Assignments</h2>
+          <ul>
+            <li><a href="/conversion.html">Conversion</a></li>
+            <li><a href="/tax-calculator.html">Tax Calculator</a></li>
+            <li><a href="/loops.html">Loops</a></li>
+            <li><a href="/payroll.html">Payroll</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Class</h2>
+          <p>CS1A</p>
+          <p>Adviser: John Roy Geralde</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="year"></span> Raiza Jeniss S. Literatos</span>
+        <a href="/index.html">Back to home</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const button = document.getElementById("button");
+    const inputElement = document.getElementById("input");
+    const errorEl = document.getElementById("error");
+    const resultsEl = document.getElementById("results");
+    const tableRows = document.querySelectorAll("#taxTable tr");
+
+    const peso = (n) =>
+      "₱ " + n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Each bracket: income above `over` (up to `upTo`) pays `base` + `rate` of the excess over `over`
+    const brackets = [
+      { over: 0,       upTo: 250000,   base: 0,       rate: 0,    label: "₱ 250,000 and below (0%)" },
+      { over: 250000,  upTo: 400000,   base: 0,       rate: 0.20, label: "Above ₱ 250,000 to ₱ 400,000 (20%)" },
+      { over: 400000,  upTo: 800000,   base: 30000,   rate: 0.25, label: "Above ₱ 400,000 to ₱ 800,000 (25%)" },
+      { over: 800000,  upTo: 2000000,  base: 130000,  rate: 0.30, label: "Above ₱ 800,000 to ₱ 2,000,000 (30%)" },
+      { over: 2000000, upTo: 8000000,  base: 490000,  rate: 0.32, label: "Above ₱ 2,000,000 to ₱ 8,000,000 (32%)" },
+      { over: 8000000, upTo: Infinity, base: 2410000, rate: 0.35, label: "Above ₱ 8,000,000 (35%)" },
+    ];
+
+    function computeTax(income) {
+      const index = brackets.findIndex((b) => income <= b.upTo);
+      const bracket = brackets[index];
+      const taxDue = bracket.base + (income - bracket.over) * bracket.rate;
+      const effectiveRate = income > 0 ? (taxDue / income) * 100 : 0;
+      const afterTax = income - taxDue;
+      return { index, bracket, taxDue, effectiveRate, afterTax };
+    }
+
+    function compute() {
+      const raw = inputElement.value;
+      const income = Number(raw);
+
+      if (raw === "" || isNaN(income) || income < 0) {
+        errorEl.textContent = "Please enter a valid income (0 or higher).";
+        resultsEl.hidden = true;
+        tableRows.forEach((r) => r.classList.remove("active"));
+        inputElement.classList.remove("shake");
+        void inputElement.offsetWidth;
+        inputElement.classList.add("shake");
+        return;
+      }
+
+      errorEl.textContent = "";
+      const { index, bracket, taxDue, effectiveRate, afterTax } = computeTax(income);
+
+      document.getElementById("bracket").textContent = bracket.label;
+      document.getElementById("taxDue").textContent = peso(taxDue);
+      document.getElementById("effectiveRate").textContent = effectiveRate.toFixed(2) + "%";
+      document.getElementById("afterTax").textContent = peso(afterTax);
+
+      // Replay the pop animation on every compute
+      resultsEl.hidden = true;
+      void resultsEl.offsetWidth;
+      resultsEl.hidden = false;
+
+      tableRows.forEach((r, i) => r.classList.toggle("active", i === index));
+    }
+
+    button.addEventListener("click", compute);
+    inputElement.addEventListener("keydown", (e) => { if (e.key === "Enter") compute(); });
+
+    // Scroll effects: progress bar and header shadow
+    const header = document.querySelector(".site-header");
+    const progress = document.getElementById("progress");
+    function onScroll() {
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = "scaleX(" + (max > 0 ? y / max : 0) + ")";
+      header.classList.toggle("scrolled", y > 20);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  </script>
+</body>
+</html>
